@@ -139,21 +139,20 @@ function drawPaddle() {
 }
 
 function draw() {
-    //draw background
-    fill(0);
-    rect(0, 0, width, height);
-    graphics.fill(0, 12);
-    graphics.noStroke();
-    graphics.rect(0, 0, width, height);
-    image(graphics, 0, 0)
-
     if (gameOver == 1) {
-        fill(255, 80);
+        fill(20, 22);
         rect(0, 0, width, height);
     }
 
-
     if (gameOver != 1) {
+        //draw background
+        fill(0);
+        rect(0, 0, width, height);
+        graphics.fill(0, 12);
+        graphics.noStroke();
+        graphics.rect(0, 0, width, height);
+        image(graphics, 0, 0)
+
         //draw paddle
         drawPaddle()
         //draw ball
