@@ -12,6 +12,8 @@ let gameOver = 0;
 let left_arrow;
 let right_arrow;
 
+let touching;
+
 let windowPre;
 let graphics;
 
@@ -236,6 +238,21 @@ function draw() {
     if (right_arrow && paddle.x + paddle.z < width) {
         paddle.x += 5;
     }
+    if (touching && paddle.x + paddle.z < width && paddle.x > 0) {
+        if (mouseX > (paddle.z / 2) && mouseX < windowWidth - (paddle.z / 2)) {
+            paddle.x = mouseX - (paddle.z / 2)
+        }
+    }
+}
+
+function touchStarted() {
+    touching = true;
+    // prevent default
+    return false;
+}
+
+function touchEnded() {
+    touching = false;
 }
 
 function keyPressed() {
