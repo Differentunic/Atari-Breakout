@@ -16,15 +16,23 @@ let windowPre;
 let graphics;
 
 let bricks = [];
-let brickRowCount = 6;
-let brickColumnCount = 16;
+let brickRowCount = 5;
+let brickColumnCount = 12;
 let brickWidth = 75;
 let brickHeight = 20;
-let brickPadding = 10;
+let brickPadding = 5;
 let brickOffsetTop = 50;
 let brickOffsetLeft = 80;
 
+
 function setup() {
+
+    brickWidth = windowWidth / 13.51;
+    brickHeight = windowHeight / 26;
+    brickPadding = windowWidth / 384;
+    brickOffsetTop = windowWidth / 21.6;
+    brickOffsetLeft = windowWidth / 24;
+
     createCanvas(windowWidth, windowHeight);
     //graphics for text and paddle
     graphics = createGraphics(windowWidth, windowHeight);
@@ -34,10 +42,13 @@ function setup() {
     windowPre = createVector(windowWidth, windowHeight);
 
     //start ellipse at middle top of screen
-    position = createVector((width / 2) + (paddle.z / 2), paddle.y - r - 1);
+    position = createVector((width / 2) + (paddle.z / 2), paddle.y - (r * 2));
 
     //calculate initial random velocity
     velocity = p5.Vector.random2D();
+    if (velocity.y > 0) {
+        velocity.y *= -1;
+    }
     velocity.mult(speed);
 
     graphics.fill(10);
@@ -65,10 +76,11 @@ function windowResized() {
     paddle.y = windowHeight * 0.85;
     windowPre.x = windowWidth;
     windowPre.y = windowHeight;
-    resizeCanvas(windowWidth, windowHeight);
+    noCanvas();
+    createCanvas(windowWidth, windowHeight);
     graphics.remove();
-
     graphics = createGraphics(windowWidth, windowHeight);
+
 }
 // function for drawing bricks
 function drawBricks() {
@@ -96,24 +108,28 @@ async function collisionDetection() {
                     velocity.y *= -1;
                     b.status = 0;
                     score++;
+                    speed += 0.1;
                 }
                 // bottom collision
                 if (position.y <= b.y + brickHeight + r && position.y >= b.y + brickHeight && position.x >= b.x - r && position.x <= b.x + r + brickWidth) {
                     velocity.y *= -1;
                     b.status = 0;
                     score++;
+                    speed += 0.1;
                 }
                 // left collision
                 if (position.x >= b.x - r && position.x <= b.x && position.y >= b.y - r && position.y <= b.y + r + brickHeight) {
                     velocity.x *= -1;
                     b.status = 0;
                     score++;
+                    speed += 0.1;
                 }
                 // right collision
                 if (position.x <= b.x + r + brickWidth && position.x >= b.x + brickWidth && position.y >= b.y - r && position.y <= b.y + r + brickHeight) {
                     velocity.x *= -1;
                     b.status = 0;
                     score++;
+                    speed += 0.1;
                 }
             }
         }
@@ -139,6 +155,7 @@ function drawPaddle() {
 }
 
 function draw() {
+
     if (gameOver == 1) {
         fill(20, 22);
         rect(0, 0, width, height);
@@ -192,8 +209,17 @@ function draw() {
     }
     // collision for top of paddle
     if (position.y >= paddle.y - r && position.y <= paddle.y + r && position.x >= paddle.x - r && position.x <= paddle.x + r + paddle.z) {
-        velocity.y *= -1;
+        let relativeIntersectX = (paddle.x + (paddle.z / 2)) - position.x;
+        let normalizedRelativeIntersectionX = (relativeIntersectX / (paddle.z / 2));
+        let bounceAngle = normalizedRelativeIntersectionX * 75;
+
+        velocity.y = speed*Math.cos(bounceAngle);
+        velocity.x = speed*-Math.sin(bounceAngle);
+        if (velocity.y > 0) {
+            velocity.y *= -1;
+        }
     }
+    /*
     // collision for left side of paddle
     if (position.x >= paddle.x - r && position.x <= paddle.x && position.y >= paddle.y - r && position.y <= paddle.y + r + 20) {
         velocity.x *= -1;
@@ -202,11 +228,12 @@ function draw() {
     if (position.x <= paddle.x + r + paddle.z && position.x >= paddle.x + paddle.z && position.y >= paddle.y - r && position.y <= paddle.y + r + 20) {
         velocity.x *= -1;
     }
+     */
     // controls for moving paddle
-    if (left_arrow) {
+    if (left_arrow && paddle.x > 0) {
         paddle.x -= 5;
     }
-    if (right_arrow) {
+    if (right_arrow && paddle.x + paddle.z < width) {
         paddle.x += 5;
     }
 }
